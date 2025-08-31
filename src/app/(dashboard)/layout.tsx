@@ -23,7 +23,9 @@ export default async function OrdersLayout({
         <NavBar/>
       </div>
       <div className="w-5/6 flex flex-col">
-        <Banner/>
+        <div className="h-16 bg-gray-200">
+          <Banner/>
+        </div>
         <div className="flex-1 bg-gray-50 p-6">{children}</div>
       </div>
     </div>

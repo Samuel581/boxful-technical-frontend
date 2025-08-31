@@ -5,8 +5,9 @@ import type { CreateOrderRequestDto, OrderResponseDto } from "@/lib/dtos/order.d
 
 export async function GET(req: NextRequest) {
   try {
-    const jwt = getJwtFromCookies();
+    const jwt = await getJwtFromCookies();
     console.log('[API GET] JWT exists:', !!jwt);
+    console.log('[API GET] JWT value:', jwt ? jwt.substring(0, 50) + '...' : 'null');
     
     if (!jwt) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 

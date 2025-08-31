@@ -1,8 +1,9 @@
+import HistoryTable from '@/components/orders/OrdersTable/HistoryTable'
 import React from 'react'
 
 function Page() {
   return (
-    <div>History</div>
+    <HistoryTable/>
   )
 }
 

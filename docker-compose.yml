@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # NextJS Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://nestjs-api:3001
+    networks:
+      - shared-network
+    depends_on:
+      - backend-check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Backend connectivity check
+  backend-check:
+    image: curlimages/curl:latest
+    container_name: backend-check
+    networks:
+      - shared-network
+    command: >
+      sh -c "
+        echo 'Waiting for backend to be ready...';
+        until curl -f http://nestjs-api:3001/health; do
+          echo 'Backend not ready, waiting 5 seconds...';
+          sleep 5;
+        done;
+        echo 'Backend is ready!';
+      "
+    depends_on:
+      - dummy
+    restart: "no"
+
+  # Dummy service to ensure network exists
+  dummy:
+    image: hello-world
+    networks:
+      - shared-network
+
+# Networks (shared with backend)
+networks:
+  shared-network:
+    external: true
+
+# Volumes
+volumes:
+  node_modules_cache:

@@ -3,13 +3,10 @@ import { Typography, Input, DatePicker } from "antd";
 import { useFormContext, Controller } from "react-hook-form";
 import { OrderFormValues } from "@/lib/schemas/order";
 import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
+import type { Dayjs } from 'dayjs';
 
 function CustomerInfoStep() {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext<OrderFormValues>();
+  const { control, formState: { errors } } = useFormContext<OrderFormValues>();
 
   return (
     <div className="flex flex-col gap-3 h-full">
@@ -17,16 +14,14 @@ function CustomerInfoStep() {
 
       <div className="flex flex-row w-full gap-5">
         <div className="w-2/3">
-          <Typography className="font-bold">
-            Direccion de recoleccion
-          </Typography>
+          <Typography className="font-bold">Direccion de recoleccion</Typography>
           <Controller
             name="collectionAddress"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
-                placeholder="Ingresa la direccion de recoleccion"
+                placeholder="Ingresa la direccion de recoleccion" 
                 className="w-full"
                 status={errors.collectionAddress ? "error" : ""}
               />
@@ -44,7 +39,7 @@ function CustomerInfoStep() {
             name="scheduledDate"
             control={control}
             render={({ field }) => (
-              <DatePicker
+              <DatePicker 
                 className="w-full"
                 format="DD/MM/YYYY"
                 status={errors.scheduledDate ? "error" : ""}
@@ -70,7 +65,7 @@ function CustomerInfoStep() {
             name="destinationFirstName"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.destinationFirstName ? "error" : ""}
@@ -89,7 +84,7 @@ function CustomerInfoStep() {
             name="destinationLastName"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.destinationLastName ? "error" : ""}
@@ -108,7 +103,7 @@ function CustomerInfoStep() {
             name="destinationEmail"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.destinationEmail ? "error" : ""}
@@ -130,7 +125,7 @@ function CustomerInfoStep() {
             name="destinationPhone"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.destinationPhone ? "error" : ""}
@@ -144,14 +139,12 @@ function CustomerInfoStep() {
           )}
         </div>
         <div className="w-2/3">
-          <Typography className="font-bold">
-            Direccion del destinatario
-          </Typography>
+          <Typography className="font-bold">Direccion del destinatario</Typography>
           <Controller
             name="destinationAddress"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.destinationAddress ? "error" : ""}
@@ -173,7 +166,7 @@ function CustomerInfoStep() {
             name="department"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.department ? "error" : ""}
@@ -192,7 +185,7 @@ function CustomerInfoStep() {
             name="province"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input 
                 {...field}
                 className="w-full"
                 status={errors.province ? "error" : ""}
@@ -205,25 +198,27 @@ function CustomerInfoStep() {
             </Typography.Text>
           )}
         </div>
-        <div className="w-full">
-          <Typography className="font-bold">Referencia de dirección</Typography>
-          <Controller
-            name="addressReference"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                className="w-full"
-                status={errors.addressReference ? "error" : ""}
-              />
-            )}
-          />
-          {errors.addressReference && (
-            <Typography.Text type="danger" className="text-sm">
-              {errors.addressReference.message}
-            </Typography.Text>
+
+      </div>
+
+      <div className="w-full">
+        <Typography className="font-bold">Referencia de dirección</Typography>
+        <Controller
+          name="addressReference"
+          control={control}
+          render={({ field }) => (
+            <Input 
+              {...field}
+              className="w-full"
+              status={errors.addressReference ? "error" : ""}
+            />
           )}
-        </div>
+        />
+        {errors.addressReference && (
+          <Typography.Text type="danger" className="text-sm">
+            {errors.addressReference.message}
+          </Typography.Text>
+        )}
       </div>
 
       <div className="w-full">
@@ -231,7 +226,12 @@ function CustomerInfoStep() {
         <Controller
           name="additionalNotes"
           control={control}
-          render={({ field }) => <Input {...field} className="w-full" />}
+          render={({ field }) => (
+            <Input 
+              {...field}
+              className="w-full"
+            />
+          )}
         />
       </div>
     </div>

@@ -1,10 +1,9 @@
-import { api } from "@/lib/api/axios";
-import { UserProfileResponseDto } from "@/lib/dtos/user.dto";
-import {User} from "@/types/user"
+import type { User } from "@/types/user";
 
 export const usersService = {
-    async profile(): Promise<User>{
-        const response = await api.get<UserProfileResponseDto>('/users/profile')
-        return response.data;
-    }
-}
+  async profile(): Promise<User> {
+    const res = await fetch("/api/users/profile", { cache: "no-store" });
+    if (!res.ok) throw await res.json().catch(() => ({ message: "Failed to fetch profile" }));
+    return (await res.json()) as User;
+  },
+};

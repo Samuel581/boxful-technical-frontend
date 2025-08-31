@@ -17,13 +17,16 @@ export async function GET(req: NextRequest) {
     const resp = await api.get<OrderResponseDto[]>(`/orders${qs ? `?${qs}` : ""}`, {
       headers: { Authorization: `Bearer ${jwt}` },
     });
-    
+
     return NextResponse.json(resp.data);
-  } catch (error: any) {
-    console.error('[API GET] Error:', error.message);
-    return NextResponse.json({ 
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('[API GET] Error:', errorMessage);
+    
+    return NextResponse.json({
       message: "Failed to fetch orders",
-      error: error.message 
+      error: errorMessage
     }, { status: 500 });
   }
 }
@@ -38,28 +41,43 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json()) as CreateOrderRequestDto;
     const userId = getUserIdFromJwt(jwt);
+    
     console.log('[API POST] Request body received');
     console.log('[API POST] User ID from JWT:', userId);
     console.log('[API POST] Calling backend /orders');
-    
+
     // Add userId to the request body
     const orderData = {
       ...body,
       userId: userId
     };
-    
+
     const resp = await api.post<OrderResponseDto>("/orders", orderData, {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
     });
-    
+
     console.log('[API POST] Success');
     return NextResponse.json(resp.data, { status: 201 });
-  } catch (error: any) {
-    console.error('[API POST] Error:', error.message);
-    console.error('[API POST] Error response:', error.response?.data);
     
-    const status = error?.response?.status ?? 500;
-    const message = error?.response?.data?.message ?? "Failed to create order";
+  } catch (error: unknown) {
+    // Type-safe error handling
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('[API POST] Error:', errorMessage);
+    
+    // Handle Axios errors specifically
+    const isAxiosError = error && typeof error === 'object' && 'response' in error;
+    if (isAxiosError && error.response && typeof error.response === 'object') {
+      console.error('[API POST] Error response:', 'data' in error.response ? error.response.data : 'No data');
+    }
+    
+    const status = isAxiosError && error.response && typeof error.response === 'object' && 'status' in error.response 
+      ? (error.response.status as number) 
+      : 500;
+    
+    const message = isAxiosError && error.response && typeof error.response === 'object' && 'data' in error.response &&
+      error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+      ? (error.response.data.message as string)
+      : "Failed to create order";
     
     return NextResponse.json({ message }, { status });
   }

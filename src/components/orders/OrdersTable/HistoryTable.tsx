@@ -162,7 +162,7 @@ function HistoryTable() {
       { title: 'Producto', dataIndex: 'name', key: 'name' },
       { title: 'Peso (lbs)', dataIndex: 'weight', key: 'weight' },
       { title: 'Dimensiones (cm)', key: 'dimensions', 
-        render: (_: any, product: Order['products'][0]) => 
+        render: (_: unknown, product: Order['products'][0]) => 
           `${product.length} × ${product.height} × ${product.width}` 
       },
     ];

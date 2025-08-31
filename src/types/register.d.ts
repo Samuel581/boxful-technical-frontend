@@ -1,6 +1,8 @@
 export interface Register{
+    id: string
     firstNames: string,
     lastNames: string,
+    isActive: boolean
     sex: SEX,
     bornDate: Date,
     phone: string,

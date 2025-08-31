@@ -1,4 +1,6 @@
 export interface Order {
+    id: string;
+    userId: string;
     collectionAddress: string;
     destinationAddress: string;
     destinationFirstName: string;

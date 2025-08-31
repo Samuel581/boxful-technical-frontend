@@ -76,7 +76,11 @@ function LoginForm() {
     
     // If there's data but it indicates failure (response with ok: false)
     if (data && 'ok' in data && !data.ok) {
-      return (data as any).message || 'Error al iniciar sesión';
+      // Type-safe check for message property
+      if (data && typeof data === 'object' && 'message' in data) {
+        return (data.message as string) || 'Error al iniciar sesión';
+      }
+      return 'Error al iniciar sesión';
     }
     
     return null;

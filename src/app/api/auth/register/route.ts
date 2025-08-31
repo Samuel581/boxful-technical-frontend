@@ -5,10 +5,10 @@ import type { RegisterRequestDto } from "@/lib/dtos/auth.dto";
 
 export async function POST(req: NextRequest) {
   console.log('[api/auth/register] route hit');
+  
   const body = (await req.json()) as RegisterRequestDto;
   
   try {
-    // Convert form data to match backend expectations
     const backendData = {
       firstName: body.firstNames,
       lastName: body.lastNames,
@@ -23,11 +23,19 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
 
-    // For register, just return success (no token/login)
     return NextResponse.json({ ok: true, user: null }, { status });
-  } catch (err: any) {
-    const status = err?.response?.status ?? 500;
-    const message = err?.response?.data?.message ?? "Registration failed";
+    
+  } catch (err: unknown) {
+    const isAxiosError = err && typeof err === 'object' && 'response' in err;
+    const status = isAxiosError && err.response && typeof err.response === 'object' && 'status' in err.response 
+      ? (err.response.status as number) 
+      : 500;
+    
+    const message = isAxiosError && err.response && typeof err.response === 'object' && 'data' in err.response &&
+      err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data
+      ? (err.response.data.message as string)
+      : "Registration failed";
+    
     return NextResponse.json({ message }, { status });
   }
 }

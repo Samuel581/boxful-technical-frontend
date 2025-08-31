@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { AxiosError } from "axios";
 import { api } from "@/lib/api/axios";
 import { getJwtFromCookies, JWT_COOKIE_NAME, cookieOptions } from "@/lib/utils/auth";
 import type { UserProfileResponseDto } from "@/lib/dtos/user.dto";
@@ -17,9 +18,14 @@ export async function GET() {
     const res = NextResponse.json(resp.data);
     if (rotated && typeof rotated === "string") res.cookies.set(JWT_COOKIE_NAME, rotated, cookieOptions);
     return res;
-  } catch (err: any) {
-    const status = err?.response?.status ?? 500;
-    const message = err?.response?.data?.message ?? "Failed to fetch profile";
+  } catch (err: unknown) {
+    let status = 500;
+    let message = "Failed to fetch profile";
+
+    if (err instanceof AxiosError && err.response) {
+      status = err.response.status ?? 500;
+      message = err.response.data?.message ?? "Failed to fetch profile";
+    }
     return NextResponse.json({ message }, { status });
   }
 }

@@ -9,7 +9,6 @@ export interface Order {
     destinationPhone: string;
     department: string;
     province: string;
-    reference: string;
     addressReference: string;
     additionalNotes?: string;
     scheduledDate: string;

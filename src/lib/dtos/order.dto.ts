@@ -7,7 +7,6 @@ export interface CreateOrderRequestDto {
     destinationPhone: string;
     department: string;
     province: string;
-    reference: string;
     addressReference: string;
     additionalNotes?: string;
     scheduledDate: string;

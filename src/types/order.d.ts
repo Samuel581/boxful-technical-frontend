@@ -1,4 +1,4 @@
-export interface CreateOrderRequest {
+export interface Order {
     collectionAddress: string;
     destinationAddress: string;
     destinationFirstName: string;

@@ -1,64 +1,36 @@
 # Boxful Technical Frontend
 
-A modern, responsive web application built with Next.js for managing shipping orders and customer information. This project provides a comprehensive order management system with authentication, order creation, and order history tracking.
+A modern Next.js frontend application for managing shipping orders and user authentication, built with TypeScript, Ant Design, and React Hook Form.
 
 ## 🚀 Features
 
-- **User Authentication**: Secure login and registration system
-- **Order Management**: Create and manage shipping orders
-- **Customer Information**: Comprehensive customer data collection
-- **Order History**: View and track past orders
-- **Responsive Design**: Modern UI built with Ant Design and Tailwind CSS
-- **Form Validation**: Robust form validation using Zod schemas
-- **State Management**: Efficient state management with React Query
+- **User Authentication**: Login and registration with JWT tokens
+- **Order Management**: Create and view shipping orders
+- **Responsive Design**: Modern UI with Ant Design components
+- **Form Validation**: Zod schema validation with React Hook Form
+- **Type Safety**: Full TypeScript implementation
+- **API Integration**: RESTful API communication with backend services
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15.5.2 with App Router
+- **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **UI Library**: Ant Design (antd) 5.27.1
-- **Styling**: Tailwind CSS 4
-- **Form Management**: React Hook Form with Zod validation
+- **UI Library**: Ant Design
+- **Form Management**: React Hook Form + Zod
+- **State Management**: TanStack Query (React Query)
+- **Styling**: Tailwind CSS
 - **HTTP Client**: Axios
-- **State Management**: TanStack React Query
-- **Date Handling**: Day.js and date-fns
 - **Icons**: Lucide React
-- **Package Manager**: pnpm
 
-## 📁 Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Authentication routes
-│   │   ├── login/         # Login page
-│   │   └── register/      # Registration page
-│   ├── (dashboard)/       # Protected dashboard routes
-│   │   ├── create-order/  # Order creation page
-│   │   └── history/       # Order history page
-│   └── api/               # API routes
-├── components/            # Reusable React components
-│   ├── auth/             # Authentication components
-│   ├── orders/           # Order-related components
-│   └── providers/        # Context providers
-├── lib/                  # Utility libraries
-│   ├── api/              # API configuration
-│   ├── dtos/             # Data transfer objects
-│   ├── schemas/          # Zod validation schemas
-│   └── utils/            # Utility functions
-├── services/             # API service functions
-└── types/                # TypeScript type definitions
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
+## 📋 Prerequisites
 
 - Node.js 18+ 
 - pnpm (recommended) or npm
-- Backend API server running
+- Docker & Docker Compose (for containerized setup)
 
-### Installation
+## 🚀 Quick Start
+
+### Option 1: Local Development
 
 1. **Clone the repository**
    ```bash
@@ -76,13 +48,14 @@ src/
    cp example.env .env.local
    ```
    
-   Edit `.env.local` and add your backend API URL:
+   Update `.env.local` with your configuration:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:3001/api
+   NEXT_PUBLIC_API_URL=http://localhost:3001
    JWT_COOKIE_NAME=access_token
+   FRONTEND_PORT=3000
    ```
 
-4. **Run the development server**
+4. **Start the development server**
    ```bash
    pnpm dev
    ```
@@ -90,98 +63,211 @@ src/
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 📝 Available Scripts
+### Option 2: Docker Setup
 
-- `pnpm dev` - Start development server with Turbopack
-- `pnpm build` - Build for production with Turbopack
-- `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
+1. **Create a Docker network** (if not exists)
+   ```bash
+   docker network create boxful-network
+   ```
 
-## 🔐 Authentication
+2. **Build and run with Docker Compose**
+   ```bash
+   docker-compose up --build
+   ```
 
-The application includes a complete authentication system:
+3. **Or run individual containers**
+   ```bash
+   # Build the image
+   docker build -t boxful-frontend .
+   
+   # Run the container
+   docker run -d \
+     --name boxful-frontend \
+     --network boxful-network \
+     -p 3000:3000 \
+     -e NEXT_PUBLIC_API_URL=http://backend:3001 \
+     boxful-frontend
+   ```
 
-- **Login**: User authentication with email/password
-- **Registration**: New user account creation
-- **Protected Routes**: Dashboard routes require authentication
-- **JWT Tokens**: Secure token-based authentication
+## 🔧 Docker Configuration
 
-## 📦 Order Management
+### Dockerfile
+```dockerfile
+FROM node:18-alpine
 
-### Creating Orders
-The order creation process includes:
-- Customer information collection
-- Collection and destination addresses
-- Scheduled pickup dates
-- Product information
-- Additional notes and references
+WORKDIR /app
 
-### Order History
-- View all past orders
-- Search and filter functionality
-- Detailed order information
+COPY package*.json ./
+RUN npm install -g pnpm
+RUN pnpm install
 
-## 🎨 UI Components
+COPY . .
 
-The application uses a combination of:
-- **Ant Design**: For form components, tables, and UI elements
-- **Tailwind CSS**: For custom styling and responsive design
-- **Custom Components**: Reusable components for specific functionality
+EXPOSE 3000
 
-## 🔧 API Integration
+CMD ["pnpm", "dev"]
+```
 
-The frontend communicates with a backend API through:
-- **Axios**: HTTP client for API requests
-- **React Query**: For efficient data fetching and caching
-- **Service Layer**: Organized API service functions
+### Docker Compose
+```yaml
+version: '3.8'
 
-## 📱 Responsive Design
+networks:
+  boxful-network:
+    driver: bridge
 
-The application is fully responsive and works on:
-- Desktop computers
-- Tablets
-- Mobile devices
+services:
+  frontend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+      - JWT_COOKIE_NAME=access_token
+    networks:
+      - boxful-network
+    depends_on:
+      - backend
+
+  backend:
+    image: your-backend-image
+    ports:
+      - "3001:3001"
+    networks:
+      - boxful-network
+```
+
+## 🌐 Network Configuration
+
+The frontend and backend communicate through a shared Docker network (`boxful-network`):
+
+- **Frontend**: Runs on port 3000
+- **Backend**: Runs on port 3001
+- **Network**: `boxful-network` (bridge network)
+- **Internal Communication**: Services can reach each other using service names
+
+### Environment Variables for Docker
+
+```env
+# Frontend (.env.local)
+NEXT_PUBLIC_API_URL=http://backend:3001  # Use service name in Docker
+JWT_COOKIE_NAME=access_token
+FRONTEND_PORT=3000
+
+# Backend (if needed)
+FRONTEND_URL=http://frontend:3000
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Authentication routes
+│   ├── (dashboard)/       # Protected dashboard routes
+│   └── api/               # API routes
+├── components/            # React components
+│   ├── auth/             # Authentication components
+│   ├── orders/           # Order management components
+│   └── ui/               # Reusable UI components
+├── lib/                  # Utilities and configurations
+│   ├── api/              # API client setup
+│   ├── dtos/             # Data Transfer Objects
+│   ├── schemas/          # Zod validation schemas
+│   └── utils/            # Utility functions
+├── services/             # API service functions
+└── types/                # TypeScript type definitions
+```
+
+## 🔐 Authentication Flow
+
+1. **Login**: User submits credentials → JWT token stored in cookies
+2. **Protected Routes**: Layout checks for JWT token → redirects to login if missing
+3. **API Calls**: JWT token automatically included in Authorization header
+4. **Token Refresh**: Handled by backend (if implemented)
+
+## 📝 API Endpoints
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+
+### Orders
+- `GET /api/orders` - Fetch user orders
+- `POST /api/orders` - Create new order
 
 ## 🧪 Development
 
-### Code Quality
-- TypeScript for type safety
-- ESLint for code linting
-- Prettier for code formatting
+### Available Scripts
 
-### Best Practices
-- Component-based architecture
-- Form validation with Zod
-- Error handling and user feedback
-- Accessibility considerations
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+pnpm type-check   # Run TypeScript type checking
+```
+
+### Code Quality
+
+- **ESLint**: Code linting and formatting
+- **TypeScript**: Static type checking
+- **Prettier**: Code formatting (if configured)
 
 ## 🚀 Deployment
 
-### Build for Production
+### Production Build
+
 ```bash
+# Build the application
 pnpm build
+
+# Start production server
 pnpm start
 ```
 
-### Environment Variables for Production
-Make sure to set the correct `NEXT_PUBLIC_API_URL` for your production backend.
+### Docker Production
+
+```bash
+# Build production image
+docker build -t boxful-frontend:prod .
+
+# Run production container
+docker run -d \
+  --name boxful-frontend-prod \
+  --network boxful-network \
+  -p 3000:3000 \
+  -e NODE_ENV=production \
+  boxful-frontend:prod
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is private and proprietary.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support and questions, please contact the development team.
+For support and questions:
+- Create an issue in the repository
+- Contact the development team
+- Check the documentation
 
----
+## 🔄 Updates
 
-**Built with ❤️ using Next.js, TypeScript, and Ant Design**
+Keep your dependencies updated:
+
+```bash
+# Update all dependencies
+pnpm update
+
+# Update specific package
+pnpm update package-name
+```

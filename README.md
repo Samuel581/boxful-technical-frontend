@@ -67,7 +67,7 @@ A modern Next.js frontend application for managing shipping orders and user auth
 
 1. **Create a Docker network** (if not exists)
    ```bash
-   docker network create boxful-network
+   docker network create shared-network
    ```
 
 2. **Build and run with Docker Compose**
@@ -75,75 +75,13 @@ A modern Next.js frontend application for managing shipping orders and user auth
    docker-compose up --build
    ```
 
-3. **Or run individual containers**
-   ```bash
-   # Build the image
-   docker build -t boxful-frontend .
-   
-   # Run the container
-   docker run -d \
-     --name boxful-frontend \
-     --network boxful-network \
-     -p 3000:3000 \
-     -e NEXT_PUBLIC_API_URL=http://backend:3001 \
-     boxful-frontend
-   ```
-
-## 🔧 Docker Configuration
-
-### Dockerfile
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install -g pnpm
-RUN pnpm install
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["pnpm", "dev"]
-```
-
-### Docker Compose
-```yaml
-version: '3.8'
-
-networks:
-  boxful-network:
-    driver: bridge
-
-services:
-  frontend:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:3001
-      - JWT_COOKIE_NAME=access_token
-    networks:
-      - boxful-network
-    depends_on:
-      - backend
-
-  backend:
-    image: your-backend-image
-    ports:
-      - "3001:3001"
-    networks:
-      - boxful-network
-```
-
 ## 🌐 Network Configuration
 
-The frontend and backend communicate through a shared Docker network (`boxful-network`):
+The frontend and backend communicate through a shared Docker network (`shared-network`):
 
 - **Frontend**: Runs on port 3000
 - **Backend**: Runs on port 3001
-- **Network**: `boxful-network` (bridge network)
+- **Network**: `shared-network` (bridge network)
 - **Internal Communication**: Services can reach each other using service names
 
 ### Environment Variables for Docker
@@ -224,21 +162,6 @@ pnpm build
 
 # Start production server
 pnpm start
-```
-
-### Docker Production
-
-```bash
-# Build production image
-docker build -t boxful-frontend:prod .
-
-# Run production container
-docker run -d \
-  --name boxful-frontend-prod \
-  --network boxful-network \
-  -p 3000:3000 \
-  -e NODE_ENV=production \
-  boxful-frontend:prod
 ```
 
 ## 🤝 Contributing
